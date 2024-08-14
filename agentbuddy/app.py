@@ -12,4 +12,4 @@ app = get_agent_app(
     parent_port=os.getenv("AGENT_P_PORT", default=None),
     )
 
-uvicorn.run(app, host="0.0.0.0", port=os.getenv("AGENT_PORT", default=8080), workers=1)
+uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("AGENT_PORT", default="8080")), workers=1)
