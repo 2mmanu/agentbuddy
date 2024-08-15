@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "agentbuddy"
-version = "0.1.1.dev1"
+version = "0.1.1.dev4"
 description = ""
 authors = ["2mmanu <emmanuele.lacavalla@gmail.com>"]
 readme = "README.md"
@@ -9,6 +9,7 @@ readme = "README.md"
 python = ">=3.10,<3.13"
 fastapi = "^0.112.0"
 pymemgpt = "^0.3.22"
+aiofiles = "^24.1.0"
 
 
 [build-system]
