@@ -4,8 +4,12 @@ from fastapi.staticfiles import StaticFiles
 import aiofiles
 import os
 
-import agentbuddy
-path = os.path.dirname(agentbuddy.__file__)
+try:
+    import agentbuddy
+    path = os.path.dirname(agentbuddy.__file__)
+except Exception as e:
+    print(f"ops! using local dir: {e}")
+    path = "./agentbuddy"
 
 app = FastAPI()
 

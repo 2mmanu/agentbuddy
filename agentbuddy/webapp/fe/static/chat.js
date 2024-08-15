@@ -168,27 +168,27 @@ function startEventSource() {
 }
 
 async function askUsername() {
-    const username = prompt("Please enter your name:", "00000000-0000-0000-0000-000000375016");
-    if (username) {
-        // document.getElementById('username').textContent = username;
-        try {
-            const response = await fetch(`${apiUrl}/set-username`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Id': sessionId,
-                },
-                body: JSON.stringify({
-                    'username': username,
-                }),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to set username');
-            }
-        } catch (error) {
-            console.error('Error setting username:', error);
-        }
-    }
+    // const username = prompt("Please enter your name:", "Emmanuele");
+    // if (username) {
+    //     // document.getElementById('username').textContent = username;
+    //     try {
+    //         const response = await fetch(`${apiUrl}/set-username`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 'X-Session-Id': sessionId,
+    //                 'username': username,
+    //             }),
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error('Failed to set username');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error setting username:', error);
+    //     }
+    // }
 }
 
 
