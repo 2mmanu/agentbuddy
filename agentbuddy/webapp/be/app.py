@@ -24,8 +24,10 @@ twin = TwinClient(base_url=os.getenv("TWIN_BASE_URL",default="http://localhost:8
 async def sentinel(x_session_id: Optional[str] = Header(None)):
 
     #TODO recupero delle informazioni utente da sistema e creazione oggetto di sessione
-    session.put_session_data(session_id=x_session_id, k="name",v="Emmanuele")
-    session.put_session_data(session_id=x_session_id,k="short-description",v="SW Eng")
+    username = os.getenv("USER_NAME", default="Emmanuele")
+    short_desc = os.getenv("USER_SHORT", default="")
+    session.put_session_data(session_id=x_session_id, k="name",v=username)
+    session.put_session_data(session_id=x_session_id,k="short-description",v=short_desc)
 
     #TODO recupera il twin dell'utente e salvalo in sessione
 
