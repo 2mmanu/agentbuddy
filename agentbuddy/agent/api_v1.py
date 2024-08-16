@@ -3,21 +3,14 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import httpx, tempfile, os, shutil
 from agentbuddy.agent.base_agent import BaseAgent
-from .services.ask_to import ask_to
-from .services.verify import verify
+from agentbuddy.agent.services.ask_to import ask_to
+from agentbuddy.agent.services.verify import verify
 from fastapi.middleware.cors import CORSMiddleware
 
 network={
     "agents" : {},
     "memory" : [],
 }
-
-purpose=os.getenv("AGENT_PURPOSE", default="")
-hostname=os.getenv("AGENT_HOST", default="localhost")
-port=os.getenv("AGENT_PORT", default="8080")
-parent_hostname=os.getenv("AGENT_P_HOST", default=None)
-parent_port=os.getenv("AGENT_P_PORT", default=None)
-name=os.getenv("AGENT_NAME", default="generic")
 
 def get_agent(session_id:str):
 
@@ -40,8 +33,17 @@ def notify_to_parent(name:str,purpose:str,hostname:str,port:str,parent_hostname:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    parent_hostname=os.getenv("AGENT_P_HOST", default=None)
+    parent_port=os.getenv("AGENT_P_PORT", default=None)
     if parent_hostname is not None and parent_port is not None:
-        notify_to_parent(name=name,purpose=purpose,hostname=hostname,port=port,parent_hostname=parent_hostname,parent_port=parent_port)
+        notify_to_parent(
+            name=os.getenv("AGENT_NAME", default="generic"),
+            purpose=os.getenv("AGENT_PURPOSE", default=""),
+            hostname=os.getenv("AGENT_HOST", default="localhost"),
+            port=os.getenv("AGENT_PORT", default="8080"),
+            parent_hostname=parent_hostname,
+            parent_port=parent_port
+            )
     yield
     # cleanup
 
