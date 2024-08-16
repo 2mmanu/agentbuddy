@@ -3,8 +3,8 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import httpx, tempfile, os, shutil
 from agentbuddy.agent.base_agent import BaseAgent
-from agentbuddy.agent.services.ask_to import ask_to
-from agentbuddy.agent.services.verify import verify
+from .services.ask_to import ask_to
+from .services.verify import verify
 from fastapi.middleware.cors import CORSMiddleware
 
 network={
