@@ -3,8 +3,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import httpx, tempfile, os, shutil
 from agentbuddy.agent.base_agent import BaseAgent
-from agentbuddy.agent.services.ask_to import ask_to
-from agentbuddy.agent.services.verify import verify
+from .services.ask_to import ask_to
 from fastapi.middleware.cors import CORSMiddleware
 
 network={
@@ -18,7 +17,7 @@ def get_agent(session_id:str):
         agent_type=os.getenv("AGENT_NAME", default="generic"), 
         human="agent", 
         persona=os.getenv("PERSONA_NAME", default="generic"),
-        tools=[], 
+        tools=[ask_to], 
         memory_persona=str(network["memory"]),
         )
 
