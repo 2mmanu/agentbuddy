@@ -14,7 +14,7 @@ def ask_to(self, session_id: str, question: str, address:str) -> str:
     :raises requests.RequestException: If there is an error making the request.
 
     Example usage:
-    ask_to("isp_hr_expert", "What is the vacation policy?", "localhost:8898")
+    ask_to("e36c57e6-2251-438e-8aa5-bf8b11b14e06", "isp_hr_expert", "What is the vacation policy?", "localhost:8898")
     """
     import requests
     #TODO install agentbuddy in memgpt image
