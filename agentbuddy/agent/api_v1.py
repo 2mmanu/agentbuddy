@@ -13,16 +13,14 @@ network={
 }
 
 def get_agent(session_id:str):
-
-    agent = BaseAgent(
+    return BaseAgent(
         session_id=session_id, 
         agent_type=os.getenv("AGENT_NAME", default="generic"), 
         human="agent", 
         persona=os.getenv("PERSONA_NAME", default="generic"),
-        tools=[ask_to,verify], 
+        tools=[], 
         memory_persona=str(network["memory"]),
         )
-    return agent
 
 def notify_to_parent(name:str,purpose:str,hostname:str,port:str,parent_hostname:str,parent_port:str):
     notification_url = f"http://{parent_hostname}:{parent_port}/api/v1/new_agent"
