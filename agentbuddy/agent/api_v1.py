@@ -23,7 +23,7 @@ def get_agent(session_id:str):
     agents = []
     for agent_name, agent in enumerate(network["agents"]):
         agents.append(
-            f"you can ask to {agent_name} [at address {agent['hostname']}:{agent['port']}] about {agent['purpose']}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify."
+            f"you can ask to {agent_name} [at address {str(agent['hostname'])}:{str(agent['port'])}] about {str(agent['purpose'])}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify."
             )
 
     agent = BaseAgent(
