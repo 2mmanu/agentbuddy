@@ -23,7 +23,7 @@ def get_agent(session_id:str):
 
     agent = BaseAgent(
         session_id=session_id, 
-        agent_type=name, 
+        agent_type=os.getenv("AGENT_NAME", default="generic"), 
         human="", 
         persona=os.getenv("PERSONA_NAME", default="generic"),
         tools=[ask_to,verify], 
