@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "agentbuddy"
-version = "0.1.1.dev12"
+version = "0.1.1.dev13"
 description = ""
 authors = ["2mmanu <emmanuele.lacavalla@gmail.com>"]
 readme = "README.md"

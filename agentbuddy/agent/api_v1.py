@@ -8,7 +8,8 @@ from agentbuddy.agent.services.verify import verify
 from fastapi.middleware.cors import CORSMiddleware
 
 network={
-    "agents" : {}
+    "agents" : {},
+    "memory" : [],
 }
 
 purpose=os.getenv("AGENT_PURPOSE", default="")
@@ -19,12 +20,6 @@ parent_port=os.getenv("AGENT_P_PORT", default=None)
 name=os.getenv("AGENT_NAME", default="generic")
 
 def get_agent(session_id:str):
-
-    agents = []
-    for agent_name, agent in enumerate(network["agents"]):
-        agents.append(
-            f"you can ask to {agent_name} [at address {str(agent['hostname'])}:{str(agent['port'])}] about {str(agent['purpose'])}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify."
-            )
 
     agent = BaseAgent(
         session_id=session_id, 
@@ -93,6 +88,9 @@ def ask(agent_name:str, purpose:str, hostname:str, port:str) -> str:
             "hostname": hostname,
             "port":port
         }
+        network["memory"].append(
+            f"you can ask to {agent_name} [at address {hostname}:{port}] about {purpose}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify."
+        )
         return "OK"
     return f"agent {agent_name} exists"
 
