@@ -1,10 +1,12 @@
-def get_help(self, question: str) -> str:
+def get_help(self, session_id:str, question: str) -> str:
     """
     Facilitate a request to the given API with provided a question, and return the response value.
     When the user asks a question use the function get_help if your knowledge is limited about the question. 
     The function can explain better about multiple domains. 
     Do not ask the user any questions until you have first consulted the get_help function.
 
+    :param session_id: The current session in your memory: the session_id value
+    :type session_id: str
     :param question: The question to be sent to the API.
     :type question: str
     :return: The response from the API as a string.
@@ -20,7 +22,7 @@ def get_help(self, question: str) -> str:
     import requests
 
     api_url = 'http://facilitator/api/v1/ask'
-    params = {'question': question}
+    params = {'session_id': session_id, 'question': question}
 
     response = requests.get(api_url, params=params)
     return response.text
