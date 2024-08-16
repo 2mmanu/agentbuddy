@@ -18,6 +18,13 @@ parent_port=os.getenv("AGENT_P_PORT", default=None)
 name=os.getenv("AGENT_NAME", default="generic")
 
 def get_agent(session_id:str):
+
+    agents = []
+    for agent_name, agent in enumerate(network["agents"]):
+        agents.append(
+            f"you can ask to {agent_name} [at address {agent["hostname"]}:{agent["port"]}] about {agent["purpose"]}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify."
+            )
+
     agent = BaseAgent(
         session_id=session_id, 
         agent_type=name, 
@@ -25,8 +32,9 @@ def get_agent(session_id:str):
         persona=os.getenv("PERSONA_NAME", default="generic"),
         tools=[ask_to,verify], 
         memory_human="", 
-        memory_persona="",
+        memory_persona=str(agents),
         )
+    
     return agent
 
 def notify_to_parent(name:str,purpose:str,hostname:str,port:str,parent_hostname:str,parent_port:str):
@@ -76,10 +84,7 @@ def ask(agent_name:str, purpose:str, hostname:str, port:str,session_id:str) -> s
             "hostname": hostname,
             "port":port
         }
-        _client = get_agent(session_id=session_id)
-        #TODO questo va nella memoria direttamente con un append.
-        response = _client.notify(f"rember by now you can ask to {agent_name} [at address {hostname}:{port}] about {purpose}. use the function ask_to to send a question and get an answer. to try the connection you can use the function verify.")
-        return str(response)
+        return "OK"
     return f"agent {agent_name} exists"
 
 @app.put("/api/v1/create_source")
