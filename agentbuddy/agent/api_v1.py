@@ -28,7 +28,7 @@ def get_agent(session_id:str):
         persona=os.getenv("PERSONA_NAME", default="generic"),
         tools=[ask_to,verify], 
         memory_human="", 
-        memory_persona=str(agents),
+        memory_persona=str(network["memory"]),
         )
     
     return agent
