@@ -55,7 +55,11 @@ class BaseAgent():
     def _create_agent(self,human:str="",persona:str=""):
         tools = []
         for tool in self._tools:
-            tools.append(self._client.create_tool(tool, tags=["extras"]).name)
+            try:
+                t = self._client.create_tool(tool, tags=["extras"])
+                tools.append(t.name)
+            except Exception as e:
+                print("WARN: ", e)
 
         chatmemory = ChatMemory(
             human=human,
