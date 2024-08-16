@@ -5,6 +5,7 @@ import httpx, tempfile, os, shutil
 from agentbuddy.agent.base_agent import BaseAgent
 from agentbuddy.agent.services.ask_to import ask_to
 from agentbuddy.agent.services.verify import verify
+from fastapi.middleware.cors import CORSMiddleware
 
 network={
     "agents" : {}
@@ -53,6 +54,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/api/v1/ask")
 def ask(question:str, session_id:str) -> str:
     agent = get_agent(session_id=session_id)
@@ -77,7 +86,7 @@ def list_agents() -> str:
     return str(network["agents"])
 
 @app.put("/api/v1/new_agent")
-def ask(agent_name:str, purpose:str, hostname:str, port:str,session_id:str) -> str:
+def ask(agent_name:str, purpose:str, hostname:str, port:str) -> str:
     if agent_name not in network["agents"]:
         network["agents"][agent_name]={
             "purpose": purpose,
