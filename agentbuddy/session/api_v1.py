@@ -49,7 +49,7 @@ async def put_agent_id(session_id: str, name, id):
 @app.get("/api/v1/agent")
 async def get_agent_id(session_id: str, name):
     check_session(session_id)
-    session_manager.get_session_data(session_id,"agents",name)
+    return session_manager.get_session_data(session_id,"agents",name)
 
 @app.delete("/api/v1/close-session")
 async def close_session(request: CloseSessionRequest):

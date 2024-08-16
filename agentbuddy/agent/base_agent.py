@@ -62,7 +62,7 @@ class BaseAgent():
             persona=persona,
         )
         chatmemory.core_memory_append("human","")
-        chatmemory.core_memory_append("persona",f"session_id: {self._session_id}")
+        chatmemory.core_memory_append("persona",f"your session_id is: {self._session_id}")
         
         _agent_client = self._client.create_agent(
             memory = chatmemory,
