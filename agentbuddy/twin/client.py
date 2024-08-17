@@ -12,7 +12,7 @@ class TwinClient:
             "content": content
         }
         
-        response = self.client.post(url, json=data)
+        response = self.client.post(url, json=data, timeout=None)
         
         if response.status_code == 200:
             response_data = response.json()

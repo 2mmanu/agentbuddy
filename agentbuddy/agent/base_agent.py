@@ -121,7 +121,7 @@ class BaseAgent():
         Break down the request into steps and for each part, try to use at least one agent. 
         Then try to response to the quesiton.
         If you need more information from the user, you can request it from the digital twin.
-        To ask the digital twin, you can use the ask_to function at the address digital-twin:80
+        To ask the digital twin, you can use the ask_to function at the address digital-twin:8005
         """
         # Provide in JSON format, without commenting, the following structure: 
         # {{'observation': 'observation', 'questions': [('question', 'agent_name')]}}
