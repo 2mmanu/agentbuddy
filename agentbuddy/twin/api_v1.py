@@ -24,6 +24,11 @@ class MessageResponse(BaseModel):
     messages: List[Dict[str, Any]]
     usage: Dict[str, Any]
 
+@app.get("/api/v1/ask")
+def ask(question:str, session_id:str) -> str:
+    twin = Twin(session_id=session_id)
+    return str(twin.about_me(question))
+
 @app.post("/send_message", response_model=MessageResponse)
 async def send_message(request: MessageRequest):
     twin = Twin(session_id=request.session_id)

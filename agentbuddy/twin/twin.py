@@ -18,6 +18,16 @@ class Twin(BaseAgent):
                  persona = "digital-twin",
                  tools=tools,
                  )
+        
+    def about_me(self,question:str):
+        question = f"""
+            An agent needs to retrieve information from your memory.
+            Respond only with the specific data.
+            To respond, you cannot use external functions like get_help.
+            If the information is not available, you should say: "I don't have information about it."
+            Search within your memory and provide only an answer to: {question}
+        """
+        return self._handle_message(self.send_message(question))
     
     def get_domains_syntax(self):
         address = os.getenv("FACILITATOR_BASE_URL", default="localhost:8888")

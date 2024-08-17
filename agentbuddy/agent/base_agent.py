@@ -119,7 +119,10 @@ class BaseAgent():
         instructions = f"""You are the coordinator of these agents which you can call with the function ask_to: {str(agents)}. 
         The user has made the following request: {request}. 
         Break down the request into steps and for each part, try to use at least one agent. 
-        Then try to response to the quesiton."""
+        Then try to response to the quesiton.
+        If you need more information from the user, you can request it from the digital twin.
+        To ask the digital twin, you can use the ask_to function at the address digital-twin:80
+        """
         # Provide in JSON format, without commenting, the following structure: 
         # {{'observation': 'observation', 'questions': [('question', 'agent_name')]}}
         # In the observation field, insert a description of what you have decided."""
