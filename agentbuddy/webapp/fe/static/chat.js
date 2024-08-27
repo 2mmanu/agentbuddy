@@ -1,7 +1,7 @@
 let sessionId = null;
 let sentinelCalled = false;
-const apiUrl = 'http://localhost:8001/api/v1';
-const apiSession = 'http://localhost:8002/api/v1';
+const apiUrl = 'http://localhost:8000/api/v1';
+const apiSession = 'http://localhost:8000/api/v1';
 
 const chatContainer = document.getElementById('chat-container');
 const messageInput = document.getElementById('message-input');
