@@ -1,7 +1,7 @@
 let sessionId = null;
 let sentinelCalled = false;
-const apiUrl = 'http://localhost:8000/api/v1';
-const apiSession = 'http://localhost:8000/api/v1';
+const apiUrl = 'http://localhost:8001/api/v1';
+const apiSession = 'http://localhost:8002/api/v1';
 
 const chatContainer = document.getElementById('chat-container');
 const messageInput = document.getElementById('message-input');
@@ -88,20 +88,10 @@ async function sendMessage(message) {
 
             if (data.messages) {
                 data.messages.forEach(message => {
-                    if (message.internal_monologue) {
-                        console.log("Internal Monologue:", message.internal_monologue);
-                    } else if (message.function_call) {
-                        try {
-                            const functionArguments = JSON.parse(message.function_call.arguments);
-                            console.log(`Function Call (${message.function_call.name}):`, functionArguments);
-                            if (message.function_call.name == 'send_message') {
-                                addMessageToChat(functionArguments.message, 'received');
-                            }
-                        } catch (error) {
-                            console.log("Function Call:", message.function_call);
-                        }
-                    } else if (message.function_return) {
-                        console.log("Function Return:", message.function_return);
+                    if (message.message_type === 'assistant_message') {
+                        addMessageToChat(message.content, 'received');
+                    } else if (message.message_type === 'reasoning_message') {
+                        console.log("Reasoning:", message.reasoning);
                     } else {
                         console.log("Message:", message);
                     }

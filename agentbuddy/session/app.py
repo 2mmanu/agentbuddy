@@ -1,5 +1,4 @@
-from .api_v1 import app
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8002, workers=1)
+    uvicorn.run("agentbuddy.session.api_v1:app", host="0.0.0.0", port=8002, workers=1)

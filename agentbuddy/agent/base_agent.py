@@ -1,7 +1,8 @@
 import os
 import json
-from memgpt import create_client
-from memgpt.memory import ChatMemory
+from letta_client import Letta, MessageCreate, AssistantMessage
+from letta import LLMConfig,EmbeddingConfig
+# from letta import ChatMemory
 from agentbuddy.session.client import ManagedSessionServiceClient
 
 class BaseAgent():
@@ -18,7 +19,7 @@ class BaseAgent():
         
         self._tools = tools
 
-        self._client = self._get_memgpt_client()
+        self._client = self._get_letta_client()
 
         self._session_id = session_id
         
@@ -47,60 +48,96 @@ class BaseAgent():
     def get_agent_id(self):    
         return self._agent_id
 
-    def _get_memgpt_client(self):
-        _base_ulr = os.getenv("MEMGPT_BASE_URL", default="http://localhost:8083")
-        _token = os.getenv("MEMGPT_KEY", default="sk-fa5c7de8d6c03bdb29a5efe5fe3fbacbdbd31fb341e4dccf")    
-        return create_client(base_url=_base_ulr,token=_token)
+    def _get_letta_client(self):
+        client = Letta(
+            base_url=os.getenv("MEMGPT_BASE_URL", default="http://localhost:8283"),
+        )
+        return client
     
     def _create_agent(self,human:str="",persona:str=""):
         tools = []
-        for tool in self._tools:
-            try:
-                t = self._client.create_tool(tool, tags=["extras"])
-                tools.append(t.name)
-            except Exception as e:
-                print("WARN: ", e)
-
-        chatmemory = ChatMemory(
-            human=human,
-            persona=persona,
+        llmconfig=LLMConfig(
+            model="letta-free",
+            model_endpoint_type= "openai",
+            model_endpoint="https://inference.memgpt.ai",
+            context_window= 8192,
+            put_inner_thoughts_in_kwargs= True,
+            handle="letta/letta-free",
+            temperature= 0.7,
         )
+        embeddingconfig = EmbeddingConfig(
+            embedding_endpoint_type = "hugging-face",
+            embedding_endpoint = "https://embeddings.memgpt.ai",
+            embedding_model = "letta-free",
+            embedding_dim = 1024,
+            embedding_chunk_size = 300,
+            handle = "letta/letta-free",
+            azure_endpoint = None,
+            azure_version = None,
+            azure_deployment = None,
+        )
+        # for tool in self._tools:
+        #     try:
+        #         t = self._client.create_tool(tool, tags=["extras"])
+        #         tools.append(t.name)
+        #     except Exception as e:
+        #         print("WARN: ", e)
+
+        # chatmemory = ChatMemory(
+        #     human=human,
+        #     persona=persona,
+        # )
         
-        chatmemory.core_memory_append("human","")
-        chatmemory.core_memory_append("persona",f"your session_id is: {self._session_id}")
-        
-        _agent_client = self._client.create_agent(
-            memory = chatmemory,
-            metadata = {"human:": self._human, "persona": self._persona},
+        #chatmemory.core_memory_append("human","")
+        #chatmemory.core_memory_append("persona",f"your session_id is: {self._session_id}")
+
+        _agent_client = self._client.agents.create(
+            memory_blocks=[],
             tools=tools,
+            llm_config=llmconfig,
+            embedding_config=embeddingconfig,    
+            # from_template="", TODO da creare template
+            #memory = chatmemory,
+            # metadata = {"human:": self._human, "persona": self._persona},
         )
-
         return _agent_client.id
     
     def send_message(self, question):
-        response = self._client.user_message(agent_id=self._agent_id, message=question)
-        return response.messages, response.usage
+        response = self._client.agents.messages.create(
+            agent_id=self._agent_id,
+            messages=[
+            MessageCreate(
+                role="user",
+                content=question,
+            )
+            ],
+        )
+        return list(map(lambda msg: msg.model_dump(), response.messages)), response.usage
+
+        
     
     def _handle_message(self,messages):
         response = None
         for message in messages:
-            if 'internal_monologue' in message:
-                print("Internal Monologue:", message['internal_monologue'])
-            elif 'function_call' in message:
-                try:
-                    function_arguments = json.loads(message['function_call']['arguments'])
-                    print(f"Function Call ({message['function_call']['name']}):", function_arguments)
-                    if message['function_call']['name'] == 'send_message':
-                        response = function_arguments['message']
-                except json.JSONDecodeError:
-                    print("Function Call:", message['function_call'])
-            elif 'function_return' in message:
-                print("Function Return:", message['function_return'])
-            else:
-                print("Message:", message)
-                # TODO warning
-                return message
-        return response
+            if isinstance(message,AssistantMessage):
+                return message.content
+            # if 'internal_monologue' in message:
+            #     print("Internal Monologue:", message['internal_monologue'])
+            # elif 'function_call' in message:
+            #     try:
+            #         function_arguments = json.loads(message['function_call']['arguments'])
+            #         print(f"Function Call ({message['function_call']['name']}):", function_arguments)
+            #         if message['function_call']['name'] == 'send_message':
+            #             response = function_arguments['message']
+            #     except json.JSONDecodeError:
+            #         print("Function Call:", message['function_call'])
+            # elif 'function_return' in message:
+            #     print("Function Return:", message['function_return'])
+            # else:
+            #     print("Message:", message)
+            #     # TODO warning
+            #     return message
+        return ""
     
     def notify(self, news):
         # TODO problem, la risposta non arriva sempre nella function call.
