@@ -50,31 +50,31 @@ class BaseAgent():
 
     def _get_letta_client(self):
         client = Letta(
-            base_url=os.getenv("MEMGPT_BASE_URL", default="http://localhost:8283"),
+            base_url=os.getenv("LETTA_BASE_URL", default="http://localhost:8283"),
         )
         return client
     
     def _create_agent(self,human:str="",persona:str=""):
         tools = []
         llmconfig=LLMConfig(
-            model="letta-free",
-            model_endpoint_type= "openai",
-            model_endpoint="https://inference.memgpt.ai",
-            context_window= 8192,
-            put_inner_thoughts_in_kwargs= True,
-            handle="letta/letta-free",
-            temperature= 0.7,
+            model=os.getenv("LLM_MODEL", default="letta-free"),
+            model_endpoint_type=os.getenv("LLM_MODEL_TYPE", default="letta"),
+            # model_endpoint="https://inference.memgpt.ai",
+            context_window= 16000,
+            # put_inner_thoughts_in_kwargs= True,
+            # handle="letta/letta-free",
+            # temperature= 0.7,
         )
         embeddingconfig = EmbeddingConfig(
-            embedding_endpoint_type = "hugging-face",
-            embedding_endpoint = "https://embeddings.memgpt.ai",
-            embedding_model = "letta-free",
-            embedding_dim = 1024,
-            embedding_chunk_size = 300,
-            handle = "letta/letta-free",
-            azure_endpoint = None,
-            azure_version = None,
-            azure_deployment = None,
+            embedding_endpoint_type = os.getenv("LLM_EMB_MODEL_TYPE", default="letta"),
+            # embedding_endpoint = "https://embeddings.memgpt.ai",
+            embedding_model =os.getenv("LLM_EMB_MODEL", default="letta-free"),
+            # embedding_dim = 1024,
+            # embedding_chunk_size = 300,
+            # handle = "letta/letta-free",
+            # azure_endpoint = None,
+            # azure_version = None,
+            # azure_deployment = None,
         )
         # for tool in self._tools:
         #     try:

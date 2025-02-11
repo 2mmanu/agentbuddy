@@ -136,9 +136,20 @@ async function sendMessage(message) {
 function addMessageToChat(message, type) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', type);
-    messageElement.textContent = message;
+
+    // Recupera il contenuto di chatbox, se presente
+    const chatbox = document.getElementById('chat-box');
+    if (chatbox && chatbox.children.length > 0) {
+        const chatboxContent = chatbox.innerHTML; // Prende tutto il contenuto HTML
+        messageElement.innerHTML = chatboxContent + `<p>${message}</p>`; // Appende il messaggio
+        chatbox.innerHTML = ''; // Svuota chatbox
+    } else {
+        messageElement.textContent = message;
+    }
+
     chatContainer.appendChild(messageElement);
     chatContainer.scrollTop = chatContainer.scrollHeight;
+
     setTimeout(() => {
         messageElement.classList.add('visible');
     }, 10);
@@ -183,8 +194,16 @@ async function askUsername() {
 
 
 sendButton.addEventListener('click', () => {
-    const message = messageInput.value.trim();
+    let message = messageInput.value.trim();
+    
     if (message) {
+        chatbox = document.getElementById("chat-box"); // Assicurati che l'ID sia corretto
+        preElement = chatbox.querySelector('pre');
+
+        if (preElement) {
+            message += ': ' + preElement.textContent.trim();
+        }
+
         sendMessage(message);
         messageInput.value = '';
     }
