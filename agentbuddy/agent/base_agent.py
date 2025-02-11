@@ -1,7 +1,7 @@
 import os
 import json
-from letta_client import Letta, MessageCreate, AssistantMessage
-from letta import LLMConfig,EmbeddingConfig
+from letta_client import Letta, MessageCreate, AssistantMessage, EmbeddingConfig
+from letta_client import LlmConfig as LLMConfig
 # from letta import ChatMemory
 from agentbuddy.session.client import ManagedSessionServiceClient
 
