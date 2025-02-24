@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client SSE + Chat + Actions</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #events, #chat { border: 1px solid #ccc; padding: 10px; margin-top: 10px; height: 200px; overflow-y: auto; }
+        .event, .message { border-bottom: 1px solid #ddd; padding: 5px; }
+        .input-group { margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>Chat</h2>
+
+    <label for="baseUrl">Base URL:</label>
+    <input type="text" id="baseUrl" value="http://localhost:8001">
+    
+    <label for="sessionId">Session ID:</label>
+    <input type="text" id="sessionId" placeholder="Inserisci Session ID">
+    
+    <button onclick="startConnection()">Avvia Connessione</button>
+
+    <h3>Eventi Ricevuti:</h3>
+    <div id="events"></div>
+
+    <h3>Messaggi della Chat:</h3>
+    <div id="chat"></div>
+
+    <div class="input-group">
+        <input type="text" id="username" placeholder="Nome utente">
+        <input type="text" id="messageInput" placeholder="Scrivi un messaggio">
+        <button onclick="sendMessage()">Invia</button>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let baseUrl = "http://localhost:8001";
+
+        const supportedActions = [
+            { id: "print_message", name: "Stampa Messaggio" },
+            { id: "alert_user", name: "Avviso Utente" },
+            { id: "popup", name: "Mostra Popup" }  // ✅ Nuova action "popup"
+        ];
+
+        function startConnection() {
+            baseUrl = document.getElementById("baseUrl").value.trim();
+            const sessionId = document.getElementById("sessionId").value.trim();
+
+            if (!sessionId) {
+                alert("Inserisci un Session ID");
+                return;
+            }
+
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            // Registra le azioni supportate
+            fetch(`${baseUrl}/register-actions/${sessionId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(supportedActions)
+            });
+
+            // Inizia lo streaming SSE
+            eventSource = new EventSource(`${baseUrl}/stream/${sessionId}`);
+
+            eventSource.onmessage = function(event) {
+                console.log("Evento ricevuto:", event.data);
+                const data = JSON.parse(event.data);
+                if (data.type === "chat") {
+                    appendMessage(data);
+                } else if (data.type === "action") {
+                    handleAction(data);
+                } else {
+                    appendEvent(`Evento ricevuto: ${event.data}`);
+                }
+            };
+        }
+
+        function handleAction(action) {
+            console.log("Action ricevuta:", action);
+            if (action.name === "Stampa Messaggio") {
+                appendEvent(`Eseguita azione: ${action.name} con parametri: ${JSON.stringify(action.params)}`);
+            } else if (action.name === "Avviso Utente") {
+                alert(`Messaggio ricevuto: ${action.params.message}`);
+            } else if (action.name === "Mostra Popup") {  // ✅ Gestione della nuova action
+                alert(`📢 Popup: ${action.params.message}`);
+            }
+        }
+
+        function appendEvent(message) {
+            const eventsDiv = document.getElementById("events");
+            const newEvent = document.createElement("div");
+            newEvent.classList.add("event");
+            newEvent.textContent = message;
+            eventsDiv.appendChild(newEvent);
+        }
+
+        function appendMessage(message) {
+            const chatDiv = document.getElementById("chat");
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.innerHTML = `<strong>${message.user}:</strong> ${message.text}`;
+            chatDiv.appendChild(newMessage);
+        }
+
+        function sendMessage() {
+            const sessionId = document.getElementById("sessionId").value.trim();
+            const username = document.getElementById("username").value.trim();
+            const messageText = document.getElementById("messageInput").value.trim();
+
+            fetch(`${baseUrl}/send-message/${sessionId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user: username, text: messageText })
+            });
+        }
+    </script>
+
+</body>
+</html>
