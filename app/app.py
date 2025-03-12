@@ -5,6 +5,7 @@ from fastapi.security import OAuth2AuthorizationCodeBearer
 from keycloak import KeycloakOpenID
 import uvicorn
 import os
+from agentbuddy.agents import AgentFactory
 
 KEYCLOAK_URL = "http://localhost:8080"
 REALM = "myrealm"
@@ -95,11 +96,30 @@ def chat(user: dict = Depends(verify_token), request: dict = None):
     user_message = request.get("user_message", "").strip()
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
+    
 
-    reflections = [f"Sto pensando a '{user_message}'...", "Analizzo il contesto..."]
-    response = f"Risposta dell'agente a: '{user_message}'"
+    params = {
+        "agent_id": "agent_id",
+        "agent_type": "langgraph",
+        "tools": [],
+        "provider": "ollama",
+        "model": "llama3.2:3b",
+    }
 
-    return {"messages": [{"text": msg} for msg in reflections] + [{"text": response}]}
+    agent = AgentFactory(**params)
+
+    response = agent.interact(user_message)
+
+    filtered_messages = response[1:]  
+
+    if filtered_messages:
+        final_message = filtered_messages[-1]
+        thinking_messages = filtered_messages[:-1]
+    else:
+        final_message = None
+        thinking_messages = []
+
+    return {"messages": [{"text": msg.content} for msg in thinking_messages] + [{"text": final_message.content} if final_message else {}]}
 
 @app.get("/logout")
 def logout():
