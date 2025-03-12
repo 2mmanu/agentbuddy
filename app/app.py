@@ -91,6 +91,13 @@ def callback(request: Request, code: str):
 def protected(user: dict = Depends(verify_token)):
     return {"message": f"Welcome, {user['preferred_username']}!"}
 
+def search(query: str):
+    """Call to surf the web."""
+    # This is a placeholder, but don't tell the LLM that...
+    if "sf" in query.lower() or "san francisco" in query.lower():
+        return "It's 70 degrees and foggy."
+    return "It's 90 degrees and sunny."
+
 @app.post("/chat")
 def chat(user: dict = Depends(verify_token), request: dict = None):
     user_message = request.get("user_message", "").strip()
@@ -101,7 +108,7 @@ def chat(user: dict = Depends(verify_token), request: dict = None):
     params = {
         "agent_id": "agent_id",
         "agent_type": "langgraph",
-        "tools": [],
+        "tools": [search],
         "provider": "ollama",
         "model": "llama3.2:3b",
     }
