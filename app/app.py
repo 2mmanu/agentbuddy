@@ -29,7 +29,10 @@ app = FastAPI()
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), 'templates'))
 
 # Funzione per verificare il token
-def verify_token(token: str = Depends(oauth2_scheme)):
+def verify_token(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Token not found in cookies")
     try:
         return keycloak_openid.userinfo(token)
     except Exception:
@@ -87,6 +90,17 @@ def callback(request: Request, code: str):
 def protected(user: dict = Depends(verify_token)):
     return {"message": f"Welcome, {user['preferred_username']}!"}
 
+@app.post("/chat")
+def chat(user: dict = Depends(verify_token), request: dict = None):
+    user_message = request.get("user_message", "").strip()
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    reflections = [f"Sto pensando a '{user_message}'...", "Analizzo il contesto..."]
+    response = f"Risposta dell'agente a: '{user_message}'"
+
+    return {"messages": [{"text": msg} for msg in reflections] + [{"text": response}]}
+
 @app.get("/logout")
 def logout():
     response = RedirectResponse("/")
@@ -95,6 +109,10 @@ def logout():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
 
 
 

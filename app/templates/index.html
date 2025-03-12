@@ -1,20 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Chat con Agente</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        .container { max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .button { display: inline-block; padding: 10px 20px; font-size: 16px; background: blue; color: white; text-decoration: none; border-radius: 5px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #008652; /* Verde Intesa Sanpaolo */
+            color: white;
+            font-weight: bold;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 5px 0;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .sent {
+            align-self: flex-end;
+            background-color: #008652; /* Verde Intesa Sanpaolo */
+            color: white;
+            text-align: right;
+        }
+        .received {
+            align-self: flex-start;
+            background-color: #e5e5ea; /* Grigio stile iMessage */
+            color: black;
+            text-align: left;
+        }
+        .thinking-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+        .thinking {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f5; /* Grigio chiaro */
+            color: #808080;
+            font-style: italic;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin: 2px 0;
+        }
+        .thinking-icon {
+            margin-right: 5px;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ccc;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+        }
+        .input-container button {
+            background: #008652; /* Verde Intesa Sanpaolo */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background: #00643c; /* Verde più scuro */
+        }
+        .think-toggle {
+            cursor: pointer;
+            background: #ffffff;
+            color: #008652;
+            border: 1px solid #008652;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome, {{ username }}</h1>
-        <p>You are logged in!</p>
-        <a class="button" href="/logout">Logout</a>
+    <div class="header">
+        <span>Chat con Agente</span>
+        <span>{{ username }}</span>
+        <span class="think-toggle" onclick="toggleThinkMessages()">Mostra Pensieri</span>
     </div>
+    <div class="chat-container" id="chat">
+        <div class="message received">Ciao! Come posso aiutarti?</div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Scrivi un messaggio..." />
+        <button onclick="sendMessage()">Invia</button>
+    </div>
+
+    <script>
+        let showThinkMessages = true;
+
+        function toggleThinkMessages() {
+            showThinkMessages = !showThinkMessages;
+            const button = document.querySelector(".think-toggle");
+            button.textContent = showThinkMessages ? "Nascondi Pensieri" : "Mostra Pensieri";
+
+            // Mostra/Nasconde tutti i pensieri
+            const thinkingMessages = document.querySelectorAll('.thinking-container');
+            thinkingMessages.forEach(msg => msg.style.display = showThinkMessages ? 'block' : 'none');
+        }
+
+        async function sendMessage() {
+            let input = document.getElementById("message-input");
+            let message = input.value.trim();
+            if (message === "") return;
+
+            let chatContainer = document.getElementById("chat");
+
+            // Messaggio utente
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("message", "sent");
+            userMessage.textContent = message;
+            chatContainer.appendChild(userMessage);
+
+            input.value = ""; // Pulisce il campo input
+
+            // Chiamata all'endpoint /chat
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_message: message })
+            });
+
+            const data = await response.json();
+            const messages = data.messages;
+            const finalMessage = messages[messages.length - 1];
+
+            // Crea un contenitore per i pensieri dell'agente
+            let thinkingContainer = document.createElement("div");
+            thinkingContainer.classList.add("thinking-container");
+
+            // Aggiunge i pensieri intermedi (se ce ne sono)
+            if (showThinkMessages) {
+                for (let i = 0; i < messages.length - 1; i++) {
+                    let thinkingMessage = document.createElement("div");
+                    thinkingMessage.classList.add("thinking");
+
+                    let thinkingIcon = document.createElement("span");
+                    thinkingIcon.classList.add("thinking-icon");
+                    thinkingIcon.textContent = "💭"; // Icona "thinking"
+
+                    thinkingMessage.appendChild(thinkingIcon);
+                    thinkingMessage.appendChild(document.createTextNode(messages[i].text));
+                    thinkingContainer.appendChild(thinkingMessage);
+                }
+                chatContainer.appendChild(thinkingContainer);
+            }
+
+            // Messaggio finale dell'agente
+            let agentResponse = document.createElement("div");
+            agentResponse.classList.add("message", "received");
+            agentResponse.textContent = finalMessage.text;
+            chatContainer.appendChild(agentResponse);
+
+            // Scroll automatico
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
 </body>
 </html>
