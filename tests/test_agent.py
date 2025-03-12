@@ -1,5 +1,6 @@
 import unittest
 from agentbuddy.agents.langgraph_agent import LangGraphAgent
+from langchain_ollama import ChatOllama
 
 def search(query: str):
     """Call to surf the web."""
@@ -12,7 +13,8 @@ class TestLangGraphAgent(unittest.TestCase):
 
     def setUp(self):
         """Set up the agent for testing."""
-        self.agent = LangGraphAgent("agent_id", tools=[search])
+        llm = ChatOllama(model="llama3.2:3b")
+        self.agent = LangGraphAgent("agent_id", tools=[search], llm=llm)
 
     def test_weather_in_sf(self):
         """Test the response when asking about the weather in San Francisco."""

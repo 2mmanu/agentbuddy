@@ -24,16 +24,13 @@ def create_agent(agent_config: AgentCreateRequest):
         params = {
             "agent_id": agent_id,
             "agent_type": agent_config.agent_type,
-            "tools": agent_config.tools,
-            "config": agent_config.config,
+            "tools": [tool.name for tool in agent_config.tools],
+            **agent_config.config,
         }
 
         agent = AgentFactory(**params)
 
-        agents_db[agent_id] = {
-            "agent_config": agent_config.dict(),
-            "tools": [tool.name for tool in agent_config.tools]
-        }
+        agents_db[agent_id] = params
 
         return {"message": f"Agent created successfully with ID {agent_id}.", "agent_id": agent_id}
 
@@ -45,22 +42,14 @@ def create_agent(agent_config: AgentCreateRequest):
 def chat_with_agent(agent_id: str, chat_request: ChatRequest):
     """Permette di inviare un messaggio all'agente e ricevere una risposta"""
     
-    agent_data = agents_db.get(agent_id)
+    agent_params = agents_db.get(agent_id)
     
-    if not agent_data:
+    if not agent_params:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    agent_config = agent_data["agent_config"]
-    
     try:
-        params = {
-            "agent_type": agent_config["agent_type"],
-            "agent_id": agent_id,
-            "tools": agent_data["tools"],
-            "config": agent_config["config"]
-        }
         
-        agent = AgentFactory(**params)
+        agent = AgentFactory(**agent_params)
 
         response = agent.interact(chat_request.message)
 
