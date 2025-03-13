@@ -6,7 +6,7 @@ authors = ["2mmanu <emmanuele.lacavalla@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.9,<3.13"
 langchain = "^0.3.20"
 langgraph = "^0.3.7"
 langchain-ollama = "^0.2.3"
@@ -16,6 +16,9 @@ langchain-ollama = "^0.2.3"
 pytest = "^8.3.5"
 fastapi = "^0.115.11"
 uvicorn = "^0.34.0"
+python-keycloak = "^5.3.1"
+jinja2 = "^3.1.6"
+pymongo = "^4.11.2"
 
 [build-system]
 requires = ["poetry-core"]
