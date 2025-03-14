@@ -7,11 +7,11 @@ import uvicorn
 import os
 from agentbuddy.agents import AgentFactory
 
-KEYCLOAK_URL = "http://localhost:8080"
-REALM = "myrealm"
-CLIENT_ID = "myclient"
-REDIRECT_URI = "http://localhost:8000/callback"
-TOKEN_URL = f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/token"
+KEYCLOAK_URL = os.environ("KEYCLOAK_URL","http://localhost:8080")
+REALM = os.environ("REALM","myrealm")
+CLIENT_ID = os.environ("CLIENT_ID","myclient")
+REDIRECT_URI = os.environ("REDIRECT_URI","http://localhost:8000/callback")
+TOKEN_URL = os.environ("TOKEN_URL",f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/token")
 
 # Configurazione Keycloak
 keycloak_openid = KeycloakOpenID(server_url=KEYCLOAK_URL,
