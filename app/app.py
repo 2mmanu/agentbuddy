@@ -76,7 +76,7 @@ def callback(request: Request, code: str):
         "redirect_uri": REDIRECT_URI
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    response = keycloak_openid.connection.raw_post(TOKEN_URL, data=data, headers=headers, verify=os.getenv("CERT_PATH"))
+    response = keycloak_openid.connection.raw_post(TOKEN_URL, data=data, headers=headers, verify=False)
     
     if response.status_code == 200:
         token_data = response.json()
