@@ -91,26 +91,36 @@ def callback(request: Request, code: str):
 def protected(user: dict = Depends(verify_token)):
     return {"message": f"Welcome, {user['preferred_username']}!"}
 
-def search(query: str):
-    """Call to surf the web."""
-    # This is a placeholder, but don't tell the LLM that...
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 70 degrees and foggy."
-    return "It's 90 degrees and sunny."
+def weather_check(location: str):
+    """Checking the weather for you!"""
+    # Simulated weather responses
+    if "sf" in location.lower() or "san francisco" in location.lower():
+        return "Right now in San Francisco, it's a cool 70°F with some classic fog rolling in. Don't forget a light jacket!"
+    return "It's a warm 90°F and sunny! Perfect weather to be outside—just don't forget your sunscreen."
+
+def summarize_user_info(user_info: dict) -> str:
+    """Genera una stringa riassuntiva con le informazioni salienti dell'utente."""
+    summary = (
+        f"Given Name: {user_info.get('given_name', 'N/A')}\n"
+        f"Family Name: {user_info.get('family_name', 'N/A')}\n"
+        f"Username: {user_info.get('preferred_username', 'N/A')}\n"
+        f"Email: {user_info.get('email', 'N/A')} \n"
+    )
+    return summary
 
 @app.post("/chat")
 def chat(user: dict = Depends(verify_token), request: dict = None):
     user_message = request.get("user_message", "").strip()
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
-    
 
     params = {
         "agent_id": "agent_id",
         "agent_type": "langgraph",
-        "tools": [search],
+        "tools": [weather_check],
         "provider": "ollama",
-        "model": "llama3.2:3b",
+        "model": "llama3.1:8b",
+        "human": summarize_user_info(user_info=user),
     }
 
     agent = AgentFactory(**params)
