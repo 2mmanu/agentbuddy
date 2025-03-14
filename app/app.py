@@ -6,12 +6,13 @@ from keycloak import KeycloakOpenID
 import uvicorn
 import os
 from agentbuddy.agents import AgentFactory
+from llm import llm
 
-KEYCLOAK_URL = os.environ("KEYCLOAK_URL","http://localhost:8080")
-REALM = os.environ("REALM","myrealm")
-CLIENT_ID = os.environ("CLIENT_ID","myclient")
-REDIRECT_URI = os.environ("REDIRECT_URI","http://localhost:8000/callback")
-TOKEN_URL = os.environ("TOKEN_URL",f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/token")
+KEYCLOAK_URL = os.getenv("KEYCLOAK_URL","http://localhost:8080")
+REALM = os.getenv("REALM","myrealm")
+CLIENT_ID = os.getenv("CLIENT_ID","myclient")
+REDIRECT_URI = os.getenv("REDIRECT_URI","http://localhost:8000/callback")
+TOKEN_URL = os.getenv("TOKEN_URL",f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/token")
 
 # Configurazione Keycloak
 keycloak_openid = KeycloakOpenID(server_url=KEYCLOAK_URL,
@@ -114,14 +115,19 @@ def chat(user: dict = Depends(verify_token), request: dict = None):
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
+    
     params = {
         "agent_id": "agent_id",
         "agent_type": "langgraph",
         "tools": [weather_check],
-        "provider": "ollama",
-        "model": "llama3.1:8b",
         "human": summarize_user_info(user_info=user),
     }
+
+    if llm:
+        params["llm"]=llm
+    else:
+        params["provider"]="ollama"
+        params["model"]="llama3.2b"        
 
     agent = AgentFactory(**params)
 
